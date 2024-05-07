@@ -1,98 +1,164 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using fans;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace NET
 {
-    [TestClass]
-    public class UnitTest1
+    public class State
     {
-        [TestMethod]
-        public void TestMethod1()
+        public string Name;
+        public Dictionary<char, State> Transitions;
+        public bool IsAcceptState;
+    }
+
+    public class FA1
+    {
+        public static State a = new State()
         {
-            String s = "0111";
-            FA1 fa = new FA1();
-            bool? result = fa.Run(s);
-            Assert.IsTrue(result == true);
+            Name = "a",
+            IsAcceptState = false,
+            Transitions = new Dictionary<char, State>()
+        };
+        public State b = new State()
+        {
+            Name = "b",
+            IsAcceptState = false,
+            Transitions = new Dictionary<char, State>()
+        };
+        public State c = new State()
+        {
+            Name = "c",
+            IsAcceptState = true,
+            Transitions = new Dictionary<char, State>()
+        };
+
+        State InitialState = a;
+
+        public FA1()
+        {
+            a.Transitions['0'] = c;
+            a.Transitions['1'] = c;
+            b.Transitions['0'] = c;
+            b.Transitions['1'] = a;
+            c.Transitions['0'] = c;
+            c.Transitions['1'] = b;
         }
-        [TestMethod]
-        public void TestMethod2()
+
+        public bool? Run(IEnumerable<char> s)
         {
-            String s = "01011";
-            FA1 fa = new FA1();
-            bool? result = fa.Run(s);
-            Assert.IsTrue(result == false);
-        }   
-        [TestMethod]
-        public void TestMethod3()
-        {
-            String s = "110101011";
-            FA1 fa = new FA1();
-            bool? result = fa.Run(s);
-            Assert.IsTrue(result == false);
-        }  
-        [TestMethod]
-        public void TestMethod4()
-        {
-            String s = "1110111";
-            FA1 fa = new FA1();
-            bool? result = fa.Run(s);
-            Assert.IsTrue(result == true);
-        }  
-        [TestMethod]
-        public void TestMethod5()
-        {
-            String s = "10";
-            FA1 fa = new FA1();
-            bool? result = fa.Run(s);
-            Assert.IsTrue(result == true);
-        } 
-        [TestMethod]
-        public void TestMethod6()
-        {
-            String s = "0101";
-            FA2 fa = new FA2();
-            bool? result = fa.Run(s);
-            Assert.IsTrue(result == false);
-        }  
-        [TestMethod]
-        public void TestMethod7()
-        {
-            String s = "00110011";
-            FA2 fa = new FA2();
-            bool? result = fa.Run(s);
-            Assert.IsTrue(result == false);
-        }  
-        [TestMethod]
-        public void TestMethod8()
-        {
-            String s = "0001";
-            FA2 fa = new FA2();
-            bool? result = fa.Run(s);
-            Assert.IsTrue(result == true);
-        }  
-        [TestMethod]
-        public void TestMethod9()
-        {
-            String s = "111000";
-            FA2 fa = new FA2();
-            bool? result = fa.Run(s);
-            Assert.IsTrue(result == true);
-        } 
-        [TestMethod]
-        public void TestMethod10()
-        {
-            String s = "00110011";
-            FA3 fa = new FA3();
-            bool? result = fa.Run(s);
-            Assert.IsTrue(result == true);
+            State current = InitialState;
+            foreach (var c in s)
+            {
+                current = current.Transitions[c];
+                if (current == null)
+                    return null;
+            }
+            return current.IsAcceptState;
         }
-        [TestMethod]
-        public void TestMethod11()
+    }
+
+    public class FA2
+    {
+        public static State a = new State()
         {
-            String s = "0101";
-            FA3 fa = new FA3();
-            bool? result = fa.Run(s);
-            Assert.IsTrue(result == false);
-        }     
+            Name = "a",
+            IsAcceptState = false,
+            Transitions = new Dictionary<char, State>()
+        };
+        public State b = new State()
+        {
+            Name = "b",
+            IsAcceptState = true,
+            Transitions = new Dictionary<char, State>()
+        };
+
+        State InitialState = a;
+
+        public FA2()
+        {
+            a.Transitions['0'] = b;
+            a.Transitions['1'] = a;
+            b.Transitions['0'] = a;
+            b.Transitions['1'] = b;
+        }
+
+        public bool? Run(IEnumerable<char> s)
+        {
+            State current = InitialState;
+            foreach (var c in s)
+            {
+                current = current.Transitions[c];
+                if (current == null)
+                    return null;
+            }
+            return current.IsAcceptState;
+        }
+    }
+
+    public class FA3
+    {
+        public static State a = new State()
+        {
+            Name = "a",
+            IsAcceptState = false,
+            Transitions = new Dictionary<char, State>()
+        };
+        public State b = new State()
+        {
+            Name = "b",
+            IsAcceptState = false,
+            Transitions = new Dictionary<char, State>()
+        };
+        public State c = new State()
+        {
+            Name = "c",
+            IsAcceptState = true,
+            Transitions = new Dictionary<char, State>()
+        };
+
+        State InitialState = a;
+
+        public FA3()
+        {
+            a.Transitions['0'] = b;
+            a.Transitions['1'] = c;
+            b.Transitions['0'] = c;
+            b.Transitions['1'] = a;
+            c.Transitions['0'] = b;
+            c.Transitions['1'] = a;
+        }
+
+        public bool? Run(IEnumerable<char> s)
+        {
+            State current = InitialState;
+            foreach (var c in s)
+            {
+                current = current.Transitions[c];
+                if (current == null)
+                    return null;
+            }
+            return current.IsAcceptState;
+        }
+    }
+
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            string s1 = "1"; // true
+            string s2 = "0101"; // false
+            string s3 = "011"; // true
+
+            FA1 fa1 = new FA1();
+            FA2 fa2 = new FA2();
+            FA3 fa3 = new FA3();
+
+            Console.WriteLine("FA1 result: " + fa1.Run(s1)?.ToString());
+            Console.WriteLine("FA2 result: " + fa2.Run(s2)?.ToString());
+            Console.WriteLine("FA3 result: " + fa3.Run(s3)?.ToString());
+
+            Console.ReadLine();
+        }
     }
 }
